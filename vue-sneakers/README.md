@@ -42,3 +42,7 @@ npm run build
 ```sh
 npm run lint
 ```
+
+
+### install tailwind
+https://tailwindcss.com/docs/installation/using-vite

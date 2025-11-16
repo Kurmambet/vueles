@@ -1,17 +1,16 @@
 <script setup>
-  import myhello from './components/myhello.vue';
+  import Header from './components/header.vue';
 </script>
 
 
 <template>
-  <myhello title="puma"  :price="9500 + 555" :isAdded="true">
-    <button>Добавить</button>
-    <h4>eed</h4>
-    <myhello/>
-    <myhello/>
-  </myhello>
+  <div 
+  class="bg-white w-4/5 m-auto h-screen rounded-xl shadow-xl mt-14">
+    <Header />
 
-  <myhello/>
+    <h1>hi</h1>
+  </div>
+  
 </template>
 
 
