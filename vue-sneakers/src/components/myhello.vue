@@ -5,9 +5,6 @@
         isAdded: Boolean
     });
 
-    // const props = defineProps({
-    // });
-    // console.log(props)
 </script>
 
 
@@ -17,7 +14,10 @@
         <h2>Товар:{{ title }}</h2>
         <h3>Цена: {{ price }}</h3>
         <h3>Добавлен: {{ isAdded }}</h3>
+        <slot></slot>
     </div>
+
+
 </template>
 
 
