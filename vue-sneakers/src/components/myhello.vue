@@ -1,50 +1,31 @@
 <script setup>
-import { ref } from 'vue'
+    defineProps({
+        title: String,
+        price: Number,
+        isAdded: Boolean
+    });
 
-const count = ref(0)
-
-function increment() {
-  count.value++
-  console.log(count)
-}
-
-function updateCount(event) {
-  count.value = Number(event.target.value)
-}
+    // const props = defineProps({
+    // });
+    // console.log(props)
 </script>
 
 
 
 <template>
-  <h1 class="text">{{ count }}</h1>
-  <button @click="increment">+</button>
-
-    <div class="dinp">
-        <p>through @input & func increment</p>
-        <!-- <input v-on:input=""/> -->
-        <input @input="updateCount" />
-    </div>
-
-    <div class="dmod"> 
-        <p>through v-model</p>
-        <input v-model="count">
-    </div>
-
-    <div class="dkeyup"> 
-        <p>through keyup ctrl+enter</p>
-        <input @keyup.ctrl.enter="increment">
+    <div class="prod">
+        <h2>Товар:{{ title }}</h2>
+        <h3>Цена: {{ price }}</h3>
+        <h3>Добавлен: {{ isAdded }}</h3>
     </div>
 </template>
 
 
 
 <style scoped>
-    .text {
-    background: rgba(136, 184, 91, 0.572);
-    }
-
-    .dinp, .dmod, .dkeyup {
-        margin-right: 5em;
-        margin-left: 5em;
+    .prod {
+        border: 1px solid blue;
+        padding: 10px;
+        margin-bottom: 10px;
     }
 </style>
