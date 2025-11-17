@@ -1,6 +1,9 @@
 <script setup>
 import Card from './Card.vue'
 
+const onClickFavorite = () => {
+    alert(2)
+}
 const onClickAdd = () => {
     alert(111)
 }
@@ -15,6 +18,7 @@ const onClickAdd = () => {
       :is-added="false"
       :is-favorite="true"
       :onClickAdd="onClickAdd"
+      :onClickFavorite="onClickFavorite"
     />
 
   </div>
