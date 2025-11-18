@@ -1,5 +1,6 @@
+<!-- C:\projects\vueles\front-vue-sneakers\src\App.vue -->
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import axios from 'axios'
 
 import Header from './components/header.vue'
@@ -17,15 +18,18 @@ import Drawer from './components/Drawer.vue'
   // axios.get('https://fd7b389119d99f32.mokky.dev/items').then((resp) => console.log(resp.data));
 // })
 
+
+const items = ref([]); // { value: [] }
 onMounted(async () => {
   try {
-    // const data = await axios.get('https://fd7b389119d99f32.mokky.dev/items'); // без деструктуризации data - весь http ответ
-    const {data} = await axios.get('https://fd7b389119d99f32.mokky.dev/items'); // с деструктуризацией 
-    console.log(data);
+    // const {data} = await axios.get('https://fd7b389119d99f32.mokky.dev/items'); // с деструктуризацией  
+    const {data} = await axios.get('http://127.0.0.1:8000/api/products'); // с деструктуризацией 
+    console.log(data.products)
+    items.value = data.products;
   } catch (err) {
     console.log(err);
   }
-})
+});
 
 
 </script>

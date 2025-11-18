@@ -46,3 +46,14 @@ npm run lint
 
 ### install tailwind
 https://tailwindcss.com/docs/installation/using-vite
+
+
+
+
+
+
+# Запуск 
+```sh
+python run.py
+npm run lint
+```
