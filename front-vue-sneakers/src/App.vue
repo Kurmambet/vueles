@@ -1,6 +1,6 @@
 <!-- C:\projects\vueles\front-vue-sneakers\src\App.vue -->
 <script setup>
-import { onMounted, ref, watch} from 'vue'
+import { onMounted, ref, watch, reactive} from 'vue'
 import axios from 'axios'
 
 import Header from './components/header.vue'
@@ -9,39 +9,90 @@ import Drawer from './components/Drawer.vue'
 
 
 
-const items = ref([]); // { value: [] }
+const items = ref([]);  // { value: [] } - хранит все товары - state
 
-const sortBy = ref('');
-const searchQuery = ref('');
+const filters = reactive({
+  sortBy: 'title',
+  searchQuery: '',
+});                     // реактивный state
 
-const onChangeSelect = event =>{
-  sortBy.value = event.target.value
+
+
+const onChangeSelect = event => {
+  filters.sortBy = event.target.value
 }
 
-onMounted(async () => {
+const onChangeSearchInput = event => {
+  filters.searchQuery = event.target.value
+}
+
+
+
+const fetchItems = async () => {
   try {
+    const params = {
+      sortBy: filters.sortBy,
+      // searchQuery: filters.searchQuery
+    }
+
+    if (filters.searchQuery) {
+      params.title = `*${filters.searchQuery}*`;
+    }
+
     // const {data} = await axios.get('http://127.0.0.1:8000/api/products'); // с деструктуризацией 
     // items.value = data.products;
+    // const {data} = await axios.get('https://fd7b389119d99f32.mokky.dev/items?sortBy=' + filters.sortBy)
 
-    const {data} = await axios.get('https://fd7b389119d99f32.mokky.dev/items'); // с деструктуризацией  
-    items.value = data;
-  } catch (err) {
-    console.log(err);
-  }
-});
 
-watch(sortBy, async () => {
-  try {
-    // const {data} = await axios.get('http://127.0.0.1:8000/api/products'); // с деструктуризацией 
-    // items.value = data.products;
-    const {data} = await axios.get('https://fd7b389119d99f32.mokky.dev/items?sortBy=' + sortBy.value)
+    const {data} = await axios.get("https://fd7b389119d99f32.mokky.dev/items",
+      {
+        params
+      })
     items.value = data
   } catch (err) {
     console.log(err)
-  }  
-});
+  } 
+}
+
+onMounted(fetchItems);
+watch(filters, fetchItems);
+
+
+
+
+
+
+
+// onMounted(async () => {
+//   try {
+//     // const {data} = await axios.get('http://127.0.0.1:8000/api/products'); // с деструктуризацией 
+//     // items.value = data.products;
+
+//     const {data} = await axios.get('https://fd7b389119d99f32.mokky.dev/items'); // с деструктуризацией  
+//     items.value = data;
+//   } catch (err) {
+//     console.log(err);
+//   }
+// });
+
+
+// // для конкретного свойства - () => watch(filters.sortBy, ... )
+// watch(filters, async () => {
+//   try {
+//     // const {data} = await axios.get('http://127.0.0.1:8000/api/products'); // с деструктуризацией 
+//     // items.value = data.products;
+//     const {data} = await axios.get('https://fd7b389119d99f32.mokky.dev/items?sortBy=' + filters.sortBy)
+//     items.value = data
+//   } catch (err) {
+//     console.log(err)
+//   }  
+// });
 
 </script>
+
+
+
+
 
 <template>
   <!-- <Drawer /> -->
@@ -66,6 +117,7 @@ watch(sortBy, async () => {
           <div class="relative">
             <img class="absolute left-4 top-3" src="/search.svg" alt="" />
             <input
+              @input="onChangeSearchInput"
               class="border rounded-md py-2 pl-11 pr-4 outline-none focus:border-gray-400"
               placeholder="Поиск..."
             />
