@@ -1,6 +1,6 @@
 <!-- C:\projects\vueles\front-vue-sneakers\src\App.vue -->
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch} from 'vue'
 import axios from 'axios'
 
 import Header from './components/header.vue'
@@ -8,29 +8,38 @@ import CardList from './components/CardList.vue'
 import Drawer from './components/Drawer.vue'
 
 
-// onMounted(() => {
-  // fetch('https://fd7b389119d99f32.mokky.dev/items')
-  // .then(res => res.json())
-  // .then(data => {
-  //   console.log(data)
-  // })
-  // 
-  // axios.get('https://fd7b389119d99f32.mokky.dev/items').then((resp) => console.log(resp.data));
-// })
-
 
 const items = ref([]); // { value: [] }
+
+const sortBy = ref('');
+const searchQuery = ref('');
+
+const onChangeSelect = event =>{
+  sortBy.value = event.target.value
+}
+
 onMounted(async () => {
   try {
-    // const {data} = await axios.get('https://fd7b389119d99f32.mokky.dev/items'); // с деструктуризацией  
-    const {data} = await axios.get('http://127.0.0.1:8000/api/products'); // с деструктуризацией 
-    console.log(data.products)
-    items.value = data.products;
+    // const {data} = await axios.get('http://127.0.0.1:8000/api/products'); // с деструктуризацией 
+    // items.value = data.products;
+
+    const {data} = await axios.get('https://fd7b389119d99f32.mokky.dev/items'); // с деструктуризацией  
+    items.value = data;
   } catch (err) {
     console.log(err);
   }
 });
 
+watch(sortBy, async () => {
+  try {
+    // const {data} = await axios.get('http://127.0.0.1:8000/api/products'); // с деструктуризацией 
+    // items.value = data.products;
+    const {data} = await axios.get('https://fd7b389119d99f32.mokky.dev/items?sortBy=' + sortBy.value)
+    items.value = data
+  } catch (err) {
+    console.log(err)
+  }  
+});
 
 </script>
 
@@ -44,14 +53,14 @@ onMounted(async () => {
         <h2 class="text-3xl font-bold mb-8">Все кроссовки</h2>
 
         <div class="flex gap-4">
-          <select
+          <select @change="onChangeSelect"
             class="py-2 px-3 border rounded-md outline-none focus:border-gray-400"
             name=""
             id=""
           >
-            <option value="">По названию</option>
-            <option value="">По цене (дешевые)</option>
-            <option value="">По цене (дорогие)</option>
+            <option value="name">По названию</option>
+            <option value="price">По цене (дешевые)</option>
+            <option value="-price">По цене (дорогие)</option>
           </select>
 
           <div class="relative">

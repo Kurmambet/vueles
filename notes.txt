@@ -1,0 +1,41 @@
+https://fd7b389119d99f32.mokky.dev/items
+
+
+https://fd7b389119d99f32.mokky.dev/items?price=15600
+[{"id":2,"title":"Мужские Кроссовки Nike Air Max 270","price":15600,"imageUrl":"/sneakers/sneakers-2.jpg"},{"id":8,"title":"Кроссовки Nike Air Max 270","price":15600,"imageUrl":"/sneakers/sneakers-8.jpg"}]
+
+https://fd7b389119d99f32.mokky.dev/items?title=*Мужские Кроссовки*
+[{"id":1,"title":"Мужские Кроссовки Nike Blazer Mid Suede","price":12999,"imageUrl":"/sneakers/sneakers-1.jpg"},{"id":2,"title":"Мужские Кроссовки Nike Air Max 270","price":15600,"imageUrl":"/sneakers/sneakers-2.jpg"},{"id":3,"title":"Мужские Кроссовки Nike Blazer Mid Suede","price":8499,"imageUrl":"/sneakers/sneakers-3.jpg"}]
+
+https://fd7b389119d99f32.mokky.dev/items?sortBy=-price
+все отсортированно по цене от дорогих до дешевых
+
+https://fd7b389119d99f32.mokky.dev/items?sortBy=id
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
