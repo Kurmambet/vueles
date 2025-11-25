@@ -9,9 +9,11 @@ router = APIRouter(prefix="/api/products", tags=["products"])
 
 
 @router.get("", response_model=ProductListResponse, status_code=status.HTTP_200_OK)
-def get_products(db: Session = Depends(get_db)):
+def get_products(title: str | None = None,
+                 sortBy: str | None = None,
+                 db: Session = Depends(get_db)):
     service = ProductService(db)
-    return service.get_all_products()
+    return service.get_all_products(title=title, sortBy=sortBy)
 
 
 @router.get(

@@ -10,8 +10,8 @@ class ProductService:
     def __init__(self, db: Session):
         self.product_repository = ProductRepository(db)
 
-    def get_all_products(self) -> ProductListResponse:
-        products = self.product_repository.get_all()
+    def get_all_products(self, title: str | None, sortBy: str | None) -> ProductListResponse:
+        products = self.product_repository.get_all(title=title, sortBy=sortBy)
         products_response = [ProductResponse.model_validate(prod) for prod in products]
         return ProductListResponse(
             products=products_response, total=len(products_response)
