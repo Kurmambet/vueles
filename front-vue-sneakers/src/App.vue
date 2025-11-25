@@ -44,11 +44,9 @@ const fetchItems = async () => {
     // const {data} = await axios.get('https://fd7b389119d99f32.mokky.dev/items?sortBy=' + filters.sortBy)
 
 
-    const {data} = await axios.get("https://fd7b389119d99f32.mokky.dev/items",
-      {
-        params
-      })
-    items.value = data
+    // const {data} = await axios.get("https://fd7b389119d99f32.mokky.dev/items", { params })
+    const {data} = await axios.get("http://127.0.0.1:8000/api/products", { params })
+    items.value = data.products
   } catch (err) {
     console.log(err)
   } 
@@ -108,8 +106,8 @@ watch(filters, fetchItems);
             class="py-2 px-3 border rounded-md outline-none focus:border-gray-400"
             name=""
             id=""
-          >
-            <option value="name">По названию</option>
+            >
+            <option value="title">По названию</option>
             <option value="price">По цене (дешевые)</option>
             <option value="-price">По цене (дорогие)</option>
           </select>

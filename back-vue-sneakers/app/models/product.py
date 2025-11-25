@@ -15,5 +15,5 @@ class Product(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     def __repr__(self):
-        return f"<Product(id={self.id}, title='{self.title}', price={self.price})>"
+        return f"<Product(id={self.id}, title='{self.title}', price={self.price}, imageUrl={self.imageUrl})>"
 
