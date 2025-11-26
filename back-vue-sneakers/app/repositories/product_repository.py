@@ -2,7 +2,7 @@
 from sqlalchemy import asc, desc
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from ..models.product import Product
+from ..models.product import Favorites, Product
 from ..schemas.product import ProductCreate
 
 
@@ -37,3 +37,22 @@ class ProductRepository:
         self.db.commit()
         self.db.refresh(db_product)
         return db_product
+
+
+
+class FavoriteRepository:
+    def __init__(self, db: Session):
+        self.db = db
+
+    def get_all(self):
+        return self.db.query(Favorites).all()
+
+    def get_by_product_id(self, product_id: int):
+        return self.db.query(Favorites).filter(Favorites.product_id == product_id).first()
+
+    def create(self, product_id: int) -> Favorites:
+        favorite = Favorites(product_id=product_id)
+        self.db.add(favorite)
+        self.db.commit()
+        self.db.refresh(favorite)
+        return favorite

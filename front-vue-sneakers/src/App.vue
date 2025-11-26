@@ -27,6 +27,29 @@ const onChangeSearchInput = event => {
 }
 
 
+const  fetchFavorites = async () => {
+    try {
+    const {data: favorites} = await axios.get("http://127.0.0.1:8000/api/favorites")
+    
+    items.value = items.value.map(item => {
+      
+      const favorite = favorites.favorites.find(favorite => favorite.product_id === item.id);
+      if (!favorite) {
+        return item;
+      }
+
+      return {
+        ...item,
+        isFavorite: true,
+        favoriteId: favorite.id,
+      }
+    })
+    // console.log(items.value)
+  } catch (err) {
+    console.log(err)
+  } 
+}
+
 
 const fetchItems = async () => {
   try {
@@ -46,13 +69,20 @@ const fetchItems = async () => {
 
     // const {data} = await axios.get("https://fd7b389119d99f32.mokky.dev/items", { params })
     const {data} = await axios.get("http://127.0.0.1:8000/api/products", { params })
-    items.value = data.products
+    items.value = data.products.map(obj => ({
+      ...obj,
+      isFavorite: false,
+      isAdded: false,
+    }));
   } catch (err) {
     console.log(err)
   } 
 }
 
-onMounted(fetchItems);
+onMounted(async () => {
+  await fetchItems();
+  await fetchFavorites();
+});
 watch(filters, fetchItems);
 
 

@@ -1,8 +1,8 @@
 #  C:\projects\vueles\back-vue-sneakers\app\services\product_service.py
 from sqlalchemy.orm import Session
 from typing import List
-from ..repositories.product_repository import ProductRepository
-from ..schemas.product import ProductResponse, ProductListResponse, ProductCreate
+from ..repositories.product_repository import ProductRepository, FavoriteRepository
+from ..schemas.product import FavoriteListResponse, FavoriteResponse, ProductResponse, ProductListResponse, ProductCreate
 from fastapi import HTTPException, status
 
 
@@ -29,3 +29,24 @@ class ProductService:
     def create_product(self, product_data: ProductCreate) -> ProductResponse:
         product = self.product_repository.create(product_data)
         return ProductResponse.model_validate(product)
+
+
+
+class FavoriteServise:
+    def __init__(self, db: Session):
+        self.favorite_repository = FavoriteRepository(db)
+
+    def get_all_favorites(self) -> FavoriteListResponse:
+        favorites = self.favorite_repository.get_all()
+        favorites_response = [FavoriteResponse.model_validate(fav) for fav in favorites]
+        return FavoriteListResponse(favorites=favorites_response)
+
+    def add_to_favorites(self, product_id: int) -> FavoriteResponse:
+        # Проверка: не добавили ли уже этот товар
+        existing = self.favorite_repository.get_by_product_id(product_id)
+        if existing:
+            return FavoriteResponse.model_validate(existing)
+
+        # Создаём запись
+        favorite = self.favorite_repository.create(product_id)
+        return FavoriteResponse.model_validate(favorite)

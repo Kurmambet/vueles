@@ -28,3 +28,28 @@ class ProductResponse(BaseModel):
 class ProductListResponse(BaseModel):
     products: list[ProductResponse]
     total: int = Field(..., description="Total number of products")
+
+
+
+
+class FavoriteBase(BaseModel):
+    product_id: int
+
+
+class FavoriteCreate(FavoriteBase):
+    pass
+
+
+class FavoriteResponse(BaseModel):
+    id: int = Field(..., description="Unique favorite ID")
+    product_id: int
+
+    class Config:
+        from_attributes = True
+
+
+
+
+class FavoriteListResponse(BaseModel):
+    favorites: list[FavoriteResponse]
+
