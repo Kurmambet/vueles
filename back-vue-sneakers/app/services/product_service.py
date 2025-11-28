@@ -41,6 +41,8 @@ class FavoriteServise:
         favorites_response = [FavoriteResponse.model_validate(fav) for fav in favorites]
         return FavoriteListResponse(favorites=favorites_response)
 
+
+
     def add_to_favorites(self, product_id: int) -> FavoriteResponse:
         # Проверка: не добавили ли уже этот товар
         existing = self.favorite_repository.get_by_product_id(product_id)
@@ -49,4 +51,15 @@ class FavoriteServise:
 
         # Создаём запись
         favorite = self.favorite_repository.create(product_id)
+        return FavoriteResponse.model_validate(favorite)
+
+
+    def delete_favorite(self, favorite_id: int) -> FavoriteResponse:
+        favorite = self.favorite_repository.get_by_id(favorite_id)
+        if not favorite:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Favorite with id {favorite_id} not found"
+            )
+        self.favorite_repository.delete(favorite)
         return FavoriteResponse.model_validate(favorite)

@@ -56,3 +56,11 @@ class FavoriteRepository:
         self.db.commit()
         self.db.refresh(favorite)
         return favorite
+
+
+    def get_by_id(self, favorite_id: int):
+        return self.db.query(Favorites).filter(Favorites.id == favorite_id).first()
+
+    def delete(self, favorite):
+        self.db.delete(favorite)
+        self.db.commit()

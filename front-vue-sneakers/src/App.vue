@@ -51,9 +51,26 @@ const  fetchFavorites = async () => {
 }
 
 const addToFavorite = async (item) => {
-  item.isFavorite = !item.isFavorite
+  try {
+    if (!item.isFavorite) {
+      const obj = {
+        product_id: item.id
+    };
 
-  console.log(item);
+    item.isFavorite = true;
+    const {data} = await axios.post("http://127.0.0.1:8000/api/favorites", obj)
+
+    item.favoriteId = data.id;
+    } else {
+
+    await axios.delete(`http://127.0.0.1:8000/api/favorites/${item.favoriteId}`)
+    item.isFavorite = false
+    item.favoriteId = null
+    }
+
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 
@@ -78,6 +95,7 @@ const fetchItems = async () => {
     items.value = data.products.map(obj => ({
       ...obj,
       isFavorite: false,
+      favoriteId: null,
       isAdded: false,
     }));
   } catch (err) {
@@ -91,7 +109,7 @@ onMounted(async () => {
 });
 watch(filters, fetchItems);
 
-provide('addToFavorite', addToFavorite);
+
 
 </script>
 
@@ -130,7 +148,7 @@ provide('addToFavorite', addToFavorite);
         </div>
       </div>
       <div class="mt-10">
-        <CardList :items="items" />
+        <CardList :items="items" @addToFavorite="addToFavorite"/>
       </div>  
     </div>
   </div>
