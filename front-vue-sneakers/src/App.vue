@@ -1,6 +1,6 @@
 <!-- C:\projects\vueles\front-vue-sneakers\src\App.vue -->
 <script setup>
-import { onMounted, ref, watch, reactive} from 'vue'
+import { onMounted, ref, watch, reactive, provide} from 'vue'
 import axios from 'axios'
 
 import Header from './components/header.vue'
@@ -50,6 +50,12 @@ const  fetchFavorites = async () => {
   } 
 }
 
+const addToFavorite = async (item) => {
+  item.isFavorite = !item.isFavorite
+
+  console.log(item);
+}
+
 
 const fetchItems = async () => {
   try {
@@ -85,36 +91,7 @@ onMounted(async () => {
 });
 watch(filters, fetchItems);
 
-
-
-
-
-
-
-// onMounted(async () => {
-//   try {
-//     // const {data} = await axios.get('http://127.0.0.1:8000/api/products'); // с деструктуризацией 
-//     // items.value = data.products;
-
-//     const {data} = await axios.get('https://fd7b389119d99f32.mokky.dev/items'); // с деструктуризацией  
-//     items.value = data;
-//   } catch (err) {
-//     console.log(err);
-//   }
-// });
-
-
-// // для конкретного свойства - () => watch(filters.sortBy, ... )
-// watch(filters, async () => {
-//   try {
-//     // const {data} = await axios.get('http://127.0.0.1:8000/api/products'); // с деструктуризацией 
-//     // items.value = data.products;
-//     const {data} = await axios.get('https://fd7b389119d99f32.mokky.dev/items?sortBy=' + filters.sortBy)
-//     items.value = data
-//   } catch (err) {
-//     console.log(err)
-//   }  
-// });
+provide('addToFavorite', addToFavorite);
 
 </script>
 
