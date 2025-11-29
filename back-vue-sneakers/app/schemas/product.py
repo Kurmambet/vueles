@@ -1,7 +1,7 @@
 # C:\projects\vueles\back-vue-sneakers\app\schemas\product.py
 from pydantic import BaseModel, Field
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 class ProductBase(BaseModel):
     title: str = Field(..., min_length=5, max_length=200, description="Product name")
@@ -53,3 +53,49 @@ class FavoriteResponse(BaseModel):
 class FavoriteListResponse(BaseModel):
     favorites: list[FavoriteResponse]
 
+
+
+
+
+
+
+
+
+
+
+
+class CartItemRequest(BaseModel):
+    id: int
+    title: str
+    imageUrl: Optional[str]
+    price: float
+    isFavorite: bool
+    isAdded: bool
+    favoriteId: Optional[int] = None
+
+
+class OrderCreate(BaseModel):
+    items: List[CartItemRequest]
+    totalPrice: float
+
+
+class OrderItemResponse(BaseModel):
+    id: int
+    product_id: int
+    price: float
+
+    class Config:
+        from_attributes = True
+
+
+class OrderResponse(BaseModel):
+    id: int
+    total_price: float
+    items: List[OrderItemResponse]
+
+    class Config:
+        from_attributes = True
+
+
+class OrderListResponse(BaseModel):
+    orders: list[OrderResponse]

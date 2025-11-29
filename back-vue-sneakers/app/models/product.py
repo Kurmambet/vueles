@@ -50,3 +50,14 @@ class Favorites(Base):
 
     def __repr__(self):
         return f"<Favorite(id={self.id}, productId={self.product_id})>"
+    
+
+class Cart(Base):
+    __tablename__ = "cart"
+
+    id = Column(Integer, primary_key=True, index=True)
+    product_id = Column(Integer, ForeignKey("products.id", ondelete="CASCADE"), unique=True)
+    totalPrice = Column(Float, nullable=False)
+
+    def __repr__(self):
+        return f"<Cart(id={self.id}, productId={self.product_id})>"

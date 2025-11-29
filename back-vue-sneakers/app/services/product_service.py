@@ -1,9 +1,10 @@
 #  C:\projects\vueles\back-vue-sneakers\app\services\product_service.py
 from sqlalchemy.orm import Session
 from typing import List
-from ..repositories.product_repository import ProductRepository, FavoriteRepository
-from ..schemas.product import FavoriteListResponse, FavoriteResponse, ProductResponse, ProductListResponse, ProductCreate
+from ..repositories.product_repository import ProductRepository, FavoriteRepository, OrderRepository
+from ..schemas.product import FavoriteListResponse, FavoriteResponse, ProductResponse, ProductListResponse, ProductCreate, OrderCreate, OrderResponse, OrderItemResponse, OrderListResponse
 from fastapi import HTTPException, status
+
 
 
 class ProductService:
@@ -63,3 +64,94 @@ class FavoriteServise:
             )
         self.favorite_repository.delete(favorite)
         return FavoriteResponse.model_validate(favorite)
+
+
+
+
+
+
+
+
+class OrderService:
+    def __init__(self, db: Session):
+        self.order_repository = OrderRepository(db)
+
+    def create_order(self, order_data: OrderCreate) -> OrderResponse:
+        # оставляем только нужные поля (id, price) для репозитория
+        items_payload = [ {"id": item.id, "price": item.price} for item in order_data.items ]
+        order = self.order_repository.create_order(
+            items=items_payload,
+            total_price=order_data.totalPrice,
+        )
+
+        items_resp = [
+            OrderItemResponse.model_validate(oi)
+            for oi in order.items
+        ]
+        return OrderResponse(
+            id=order.id,
+            total_price=order.total_price,
+            items=items_resp,
+        )
+
+
+
+
+    def get_all_orders(self) -> OrderListResponse:
+        orders = self.order_repository.get_all()
+        orders_resp: list[OrderResponse] = []
+
+        for order in orders:
+            items_resp = [
+                OrderItemResponse.model_validate(oi)
+                for oi in order.items
+            ]
+            orders_resp.append(
+                OrderResponse(
+                    id=order.id,
+                    total_price=order.total_price,
+                    items=items_resp,
+                )
+            )
+
+        return OrderListResponse(orders=orders_resp)
+
+    def get_order_by_id(self, order_id: int) -> OrderResponse:
+        order = self.order_repository.get_by_id(order_id)
+        if not order:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Order with id {order_id} not found",
+            )
+
+        items_resp = [
+            OrderItemResponse.model_validate(oi)
+            for oi in order.items
+        ]
+        return OrderResponse(
+            id=order.id,
+            total_price=order.total_price,
+            items=items_resp,
+        )
+
+    def delete_order(self, order_id: int) -> OrderResponse:
+        order = self.order_repository.get_by_id(order_id)
+        if not order:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Order with id {order_id} not found",
+            )
+
+        # подготовим ответ до удаления
+        items_resp = [
+            OrderItemResponse.model_validate(oi)
+            for oi in order.items
+        ]
+        response = OrderResponse(
+            id=order.id,
+            total_price=order.total_price,
+            items=items_resp,
+        )
+
+        self.order_repository.delete(order)
+        return response

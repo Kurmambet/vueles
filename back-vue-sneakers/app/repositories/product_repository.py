@@ -3,6 +3,8 @@ from sqlalchemy import asc, desc
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from ..models.product import Favorites, Product
+from ..models.order import Order, OrderItem
+
 from ..schemas.product import ProductCreate
 
 
@@ -63,4 +65,47 @@ class FavoriteRepository:
 
     def delete(self, favorite):
         self.db.delete(favorite)
+        self.db.commit()
+
+
+
+
+class OrderRepository:
+    def __init__(self, db: Session):
+        self.db = db
+
+    def create_order(self, items: list[dict], total_price: float) -> Order:
+        order = Order(total_price=total_price)
+        self.db.add(order)
+        self.db.flush()  # чтобы у order появился id до создания OrderItem
+
+        for item in items:
+            product_id = item["id"]
+            price = item["price"]
+            order_item = OrderItem(
+                order_id=order.id,
+                product_id=product_id,
+                price=price,
+            )
+            self.db.add(order_item)
+
+        self.db.commit()
+        self.db.refresh(order)
+        return order
+
+
+
+    def get_all(self) -> list[Order]:
+        return self.db.query(Order).all()
+
+    def get_by_id(self, order_id: int) -> Order | None:
+        return (
+            self.db.query(Order)
+            .filter(Order.id == order_id)
+            .first()
+        )
+
+
+    def delete(self, order: Order) -> None:
+        self.db.delete(order)
         self.db.commit()

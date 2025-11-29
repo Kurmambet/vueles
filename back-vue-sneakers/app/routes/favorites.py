@@ -9,9 +9,6 @@ from pydantic import BaseModel
 router = APIRouter(prefix="/api/favorites", tags=["favorites"])
 
 
-
-
-
 @router.get("", response_model=FavoriteListResponse)
 def get_favorites(db: Session = Depends(get_db)):
     service = FavoriteServise(db)
@@ -25,8 +22,6 @@ class FavoriteRequest(BaseModel):
 def add_favorite(request: FavoriteRequest, db: Session = Depends(get_db)):
     service = FavoriteServise(db)
     return service.add_to_favorites(request.product_id)
-
-
 
 @router.delete("/{favorite_id}", response_model=FavoriteResponse)
 def delete_favorite(favorite_id: int = Path(...), db: Session = Depends(get_db)):

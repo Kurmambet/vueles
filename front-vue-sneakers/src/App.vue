@@ -1,17 +1,26 @@
 <!-- C:\projects\vueles\front-vue-sneakers\src\App.vue -->
 <script setup>
-import { onMounted, ref, watch, reactive, provide} from 'vue'
+import { onMounted, ref, watch, reactive, provide, computed } from 'vue'
 import axios from 'axios'
 
 import Header from './components/header.vue'
 import CardList from './components/CardList.vue'
 import Drawer from './components/Drawer.vue'
 
+const items = ref([]) // { value: [] } - хранит все товары - state
+const cart = ref([])
+const drawerOpen = ref(false)
+const isCreatingOrder = ref(false)
 
+// следит за изменениями реактивного cart.value
+const totalPrice = computed(() => cart.value.reduce((acc, item) => acc + item.price, 0))
+// const totalPrice = cart.value.reduce((acc, item) => acc + item.price, 0) - не reactive
 
-const items = ref([]);  // { value: [] } - хранит все товары - state
+const vatPrice = computed(() => Math.round((totalPrice.value * 5) / 100))
 
-const drawerOpen = ref(false);
+const cartIsEmpty = computed(() => cart.value.length === 0);
+
+const cartButtonDisabled = computed(() => isCreatingOrder.value || cartIsEmpty.value)
 
 const closeDrawer = () => {
   drawerOpen.value = false
@@ -21,33 +30,62 @@ const openDrawer = () => {
   drawerOpen.value = true
 }
 
-
-
 const filters = reactive({
   sortBy: 'title',
   searchQuery: '',
-});                     // реактивный state
+}) // реактивный state
 
-
-
-const onChangeSelect = event => {
-  filters.sortBy = event.target.value
+const addToCart = (item) => {
+  cart.value.push(item)
+  item.isAdded = true
 }
 
-const onChangeSearchInput = event => {
+const removeFromCart = (item) => {
+  cart.value.splice(cart.value.indexOf(item), 1)
+  item.isAdded = false
+}
+
+const createOrder = async () => {
+  try {
+    isCreatingOrder.value = true
+    const { data } = await axios.post(`http://127.0.0.1:8000/api/orders`, {
+      items: cart.value,
+      totalPrice: totalPrice.value,
+    })
+    cart.value = []
+
+    return data
+  } catch (err) {
+    console.log(err)
+  } finally {
+    isCreatingOrder.value = false
+  }
+}
+
+const onClickAddPlus = (item) => {
+  if (!item.isAdded) {
+    addToCart(item)
+  } else {
+    removeFromCart(item)
+  }
+  console.log(cart)
+}
+
+const onChangeSelect = (event) => {
+  filters.sortBy = event.target.value
+}
+const onChangeSearchInput = (event) => {
   filters.searchQuery = event.target.value
 }
 
+const fetchFavorites = async () => {
+  try {
+    const { data: favorites } = await axios.get('http://127.0.0.1:8000/api/favorites')
 
-const  fetchFavorites = async () => {
-    try {
-      const {data: favorites} = await axios.get("http://127.0.0.1:8000/api/favorites")
-    
-      items.value = items.value.map(item => {
-      
-      const favorite = favorites.favorites.find(favorite => favorite.product_id === item.id);
+    items.value = items.value.map((item) => {
+      const favorite = favorites.favorites.find((favorite) => favorite.product_id === item.id)
       if (!favorite) {
-        return item;
+        return item
       }
 
       return {
@@ -56,35 +94,31 @@ const  fetchFavorites = async () => {
         favoriteId: favorite.id,
       }
     })
-    // console.log(items.value)
   } catch (err) {
     console.log(err)
-  } 
+  }
 }
 
 const addToFavorite = async (item) => {
   try {
     if (!item.isFavorite) {
       const obj = {
-        product_id: item.id
-      };
+        product_id: item.id,
+      }
 
-    item.isFavorite = true;
-    const {data} = await axios.post("http://127.0.0.1:8000/api/favorites", obj)
+      item.isFavorite = true
+      const { data } = await axios.post('http://127.0.0.1:8000/api/favorites', obj)
 
-    item.favoriteId = data.id;
+      item.favoriteId = data.id
     } else {
-
-    await axios.delete(`http://127.0.0.1:8000/api/favorites/${item.favoriteId}`)
-    item.isFavorite = false
-    item.favoriteId = null
+      await axios.delete(`http://127.0.0.1:8000/api/favorites/${item.favoriteId}`)
+      item.isFavorite = false
+      item.favoriteId = null
     }
-
   } catch (err) {
-    console.log(err);
+    console.log(err)
   }
 }
-
 
 const fetchItems = async () => {
   try {
@@ -94,59 +128,70 @@ const fetchItems = async () => {
     }
 
     if (filters.searchQuery) {
-      params.title = `*${filters.searchQuery}*`;
+      params.title = `*${filters.searchQuery}*`
     }
 
-    // const {data} = await axios.get('http://127.0.0.1:8000/api/products'); // с деструктуризацией 
+    // const {data} = await axios.get('http://127.0.0.1:8000/api/products'); // с деструктуризацией
     // items.value = data.products;
     // const {data} = await axios.get('https://fd7b389119d99f32.mokky.dev/items?sortBy=' + filters.sortBy)
 
-
     // const {data} = await axios.get("https://fd7b389119d99f32.mokky.dev/items", { params })
-    const {data} = await axios.get("http://127.0.0.1:8000/api/products", { params })
-    items.value = data.products.map(obj => ({
+    const { data } = await axios.get('http://127.0.0.1:8000/api/products', { params })
+    items.value = data.products.map((obj) => ({
       ...obj,
       isFavorite: false,
       favoriteId: null,
       isAdded: false,
-    }));
+    }))
   } catch (err) {
     console.log(err)
-  } 
+  }
 }
 
 onMounted(async () => {
-  await fetchItems();
-  await fetchFavorites();
-});
-watch(filters, fetchItems);
+  await fetchItems()
+  await fetchFavorites()
+})
+watch(filters, fetchItems)
 
-
-provide('cartActions', {
+provide('cart', {
+  cart,
   closeDrawer,
-  openDrawer
+  openDrawer,
+  addToCart,
+  removeFromCart,
+})
+
+watch(cart, () => {
+  items.value = items.value.map((item) => ({
+    ...item,
+    isAdded:false
+  }))
 })
 </script>
 
-
-
-
-
 <template>
-  <Drawer v-if="drawerOpen"/>
+  <Drawer
+    v-if="drawerOpen"
+    :total-price="totalPrice"
+    :vat-price="vatPrice"
+    @create-order="createOrder"
+    :button-disabled="cartButtonDisabled"
+  />
   <div class="bg-white w-4/5 m-auto rounded-xl shadow-xl mt-14">
-    <Header @open-drawer="openDrawer"/>
+    <Header :total-price="totalPrice" @open-drawer="openDrawer" />
 
     <div class="p-10">
       <div class="flex justify-between items-center">
         <h2 class="text-3xl font-bold mb-8">Все кроссовки</h2>
 
         <div class="flex gap-4">
-          <select @change="onChangeSelect"
+          <select
+            @change="onChangeSelect"
             class="py-2 px-3 border rounded-md outline-none focus:border-gray-400"
             name=""
             id=""
-            >
+          >
             <option value="title">По названию</option>
             <option value="price">По цене (дешевые)</option>
             <option value="-price">По цене (дорогие)</option>
@@ -163,8 +208,8 @@ provide('cartActions', {
         </div>
       </div>
       <div class="mt-10">
-        <CardList :items="items" @add-to-favorite="addToFavorite"/>
-      </div>  
+        <CardList :items="items" @add-to-favorite="addToFavorite" @add-to-cart="onClickAddPlus" />
+      </div>
     </div>
   </div>
 </template>
