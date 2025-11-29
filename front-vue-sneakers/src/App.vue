@@ -11,6 +11,18 @@ import Drawer from './components/Drawer.vue'
 
 const items = ref([]);  // { value: [] } - хранит все товары - state
 
+const drawerOpen = ref(false);
+
+const closeDrawer = () => {
+  drawerOpen.value = false
+}
+
+const openDrawer = () => {
+  drawerOpen.value = true
+}
+
+
+
 const filters = reactive({
   sortBy: 'title',
   searchQuery: '',
@@ -29,9 +41,9 @@ const onChangeSearchInput = event => {
 
 const  fetchFavorites = async () => {
     try {
-    const {data: favorites} = await axios.get("http://127.0.0.1:8000/api/favorites")
+      const {data: favorites} = await axios.get("http://127.0.0.1:8000/api/favorites")
     
-    items.value = items.value.map(item => {
+      items.value = items.value.map(item => {
       
       const favorite = favorites.favorites.find(favorite => favorite.product_id === item.id);
       if (!favorite) {
@@ -55,7 +67,7 @@ const addToFavorite = async (item) => {
     if (!item.isFavorite) {
       const obj = {
         product_id: item.id
-    };
+      };
 
     item.isFavorite = true;
     const {data} = await axios.post("http://127.0.0.1:8000/api/favorites", obj)
@@ -110,7 +122,10 @@ onMounted(async () => {
 watch(filters, fetchItems);
 
 
-
+provide('cartActions', {
+  closeDrawer,
+  openDrawer
+})
 </script>
 
 
@@ -118,9 +133,9 @@ watch(filters, fetchItems);
 
 
 <template>
-  <!-- <Drawer /> -->
+  <Drawer v-if="drawerOpen"/>
   <div class="bg-white w-4/5 m-auto rounded-xl shadow-xl mt-14">
-    <Header />
+    <Header @open-drawer="openDrawer"/>
 
     <div class="p-10">
       <div class="flex justify-between items-center">
@@ -148,7 +163,7 @@ watch(filters, fetchItems);
         </div>
       </div>
       <div class="mt-10">
-        <CardList :items="items" @addToFavorite="addToFavorite"/>
+        <CardList :items="items" @add-to-favorite="addToFavorite"/>
       </div>  
     </div>
   </div>

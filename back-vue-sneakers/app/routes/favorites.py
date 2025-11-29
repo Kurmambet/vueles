@@ -17,9 +17,9 @@ def get_favorites(db: Session = Depends(get_db)):
     service = FavoriteServise(db)
     return service.get_all_favorites()
 
+
 class FavoriteRequest(BaseModel):
     product_id: int
-
 
 @router.post("", response_model=FavoriteResponse)
 def add_favorite(request: FavoriteRequest, db: Session = Depends(get_db)):
